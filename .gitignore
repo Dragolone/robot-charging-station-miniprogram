@@ -1,0 +1,39 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# WeChat Mini Program
+miniprogram_npm/
+dist/
+build/
+
+# uni-app build output
+unpackage/
+
+# IDE
+.vscode/
+.idea/
+.hbuilderx/
+
+# Claude Code
+.claude/
+
+# OS
+.DS_Store
+**/.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+.env.*
+
+# 本地引用
+.cursor-login-animation-ref/
+
+# 个人笔记 / 临时文件
+Zql.md
+确认清单.txt

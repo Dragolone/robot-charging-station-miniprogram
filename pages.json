@@ -1,0 +1,16 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "首页"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "机器人充电站",
+		"navigationBarBackgroundColor": "#F8F9FA",
+		"backgroundColor": "#F8F9FA"
+	}
+}
