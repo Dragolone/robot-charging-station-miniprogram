@@ -5,8 +5,17 @@
 			"style": {
 				"navigationBarTitleText": "首页"
 			}
+		},
+		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
 		}
 	],
+	"uniIdRouter": {
+		"loginPage": "pages/login/index"
+	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "机器人充电站",
