@@ -1,0 +1,12 @@
+{
+  "telemetry": {
+    "ingestToken": "REPLACE_WITH_INGEST_TOKEN",
+    "minReportIntervalMs": 3000,
+    "duplicateWindowMs": 10000,
+    "commandBridge": {
+      "url": "https://your-gateway.example.com/sendCommand",
+      "token": "REPLACE_WITH_BRIDGE_TOKEN",
+      "timeoutMs": 5000
+    }
+  }
+}
