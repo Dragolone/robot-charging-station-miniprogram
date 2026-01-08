@@ -11,6 +11,26 @@
 			"style": {
 				"navigationBarTitleText": "登录"
 			}
+		},
+		{
+			"path": "pages/robots/index",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "机器人"
+			}
+		},
+		{
+			"path": "pages/my/index",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "我的"
+			}
+		},
+		{
+			"path": "pages/robots/detail",
+			"style": {
+				"navigationStyle": "custom"
+			}
 		}
 	,{
     "path": "uni_modules/uni-id-pages/pages/register/register",
@@ -114,6 +134,26 @@
     }
 }
 ],
+	"tabBar": {
+		"color": "#6b7280",
+		"selectedColor": "#5427e6",
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "black",
+		"list": [
+			{
+				"pagePath": "pages/robots/index",
+				"text": "机器人",
+				"iconPath": "static/tab-robot.png",
+				"selectedIconPath": "static/tab-robot-active.png"
+			},
+			{
+				"pagePath": "pages/my/index",
+				"text": "我的",
+				"iconPath": "static/tab-my.png",
+				"selectedIconPath": "static/tab-my-active.png"
+			}
+		]
+	},
 	"uniIdRouter": {
 		"loginPage": "pages/login/index"
 	},
