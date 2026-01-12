@@ -1,0 +1,28 @@
+// 本文件用于验证数据库初始化数据
+// 可以全部运行，也可以选中部分代码运行。点击工具栏上的运行按钮或者按下【F5】键运行代码
+
+// ========== 基础查询 ==========
+
+// db.collection('robots').get();
+
+
+// db.collection('telemetry_latest')
+//   .where({ robotCode: 'ROBOT-001' })
+//   .orderBy('ts', 'desc')
+//   .limit(1)
+//   .get();
+
+// db.collection('faults')
+//   .where({ robotCode: 'ROBOT-001' })
+//   .orderBy('ts', 'desc')
+//   .get();
+
+
+db.collection('telemetry_latest')
+  .where({ robotCode: 'ROBOT-001' })
+  .orderBy('ts', 'desc')
+  .limit(1)
+  .get();
+
+
+

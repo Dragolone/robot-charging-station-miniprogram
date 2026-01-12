@@ -1,0 +1,25 @@
+[
+  {
+    "robotCode": "ROBOT-001",
+    "type": "direction",
+    "action": "forward",
+    "params": {},
+    "status": "completed",
+    "ts": 1705291800000,
+    "createTime": 1705291800000,
+    "updateTime": 1705291810000
+  },
+  {
+    "robotCode": "ROBOT-002",
+    "type": "position",
+    "action": "goto",
+    "params": {
+      "x": 120.7,
+      "y": 30.4
+    },
+    "status": "executing",
+    "ts": 1705291900000,
+    "createTime": 1705291900000,
+    "updateTime": 1705291900000
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "bsonType": "object",
+  "required": ["uid", "robotCode", "bindTime", "status", "source"],
+  "permission": {
+    "read": false,
+    "create": false,
+    "update": false,
+    "delete": false
+  },
+  "properties": {
+    "_id": { "description": "ID，系统自动生成" },
+    "uid": { "bsonType": "string", "description": "绑定用户ID（仅后端写入）" },
+    "robotCode": { "bsonType": "string", "description": "机器人编码" },
+    "bindTime": { "bsonType": "number", "description": "绑定时间戳(ms)" },
+    "status": { "bsonType": "string", "description": "绑定状态：active/inactive" },
+    "source": { "bsonType": "string", "description": "绑定来源：test/qr" },
+    "createTime": { "bsonType": "number", "description": "创建时间戳(ms)" },
+    "updateTime": { "bsonType": "number", "description": "更新时间戳(ms)" }
+  }
+}
+

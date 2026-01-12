@@ -1,0 +1,32 @@
+[
+  {
+    "robotCode": "ROBOT-001",
+    "code": "F001",
+    "message": "电池温度异常",
+    "status": "active",
+    "time": "2024-01-15 13:20:00",
+    "ts": 1705288800000,
+    "createTime": 1705288800000,
+    "updateTime": 1705288800000
+  },
+  {
+    "robotCode": "ROBOT-002",
+    "code": "F002",
+    "message": "通信延迟",
+    "status": "active",
+    "time": "2024-01-15 13:25:00",
+    "ts": 1705289100000,
+    "createTime": 1705289100000,
+    "updateTime": 1705289100000
+  },
+  {
+    "robotCode": "ROBOT-002",
+    "code": "F003",
+    "message": "传感器故障",
+    "status": "resolved",
+    "time": "2024-01-15 12:00:00",
+    "ts": 1705284000000,
+    "createTime": 1705284000000,
+    "updateTime": 1705290000000
+  }
+]
