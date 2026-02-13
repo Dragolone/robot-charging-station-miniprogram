@@ -1,0 +1,20 @@
+[
+  {
+    "robotCode": "ROBOT-001",
+    "vehicleBattery": 85.5,
+    "packBattery": 92.3,
+    "lastSeen": "2024-01-15 14:30:25",
+    "ts": 1705291825000,
+    "createTime": 1705291825000,
+    "updateTime": 1705291825000
+  },
+  {
+    "robotCode": "ROBOT-002",
+    "vehicleBattery": 65.8,
+    "packBattery": 78.9,
+    "lastSeen": "2024-01-15 14:28:10",
+    "ts": 1705291681000,
+    "createTime": 1705291681000,
+    "updateTime": 1705291681000
+  }
+]
