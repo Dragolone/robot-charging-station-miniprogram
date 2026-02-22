@@ -8,9 +8,21 @@
 'use strict'
 
 const uniID = require('uni-id-common')
+const createConfig = require('uni-config-center')
 const db = uniCloud.database()
 const dbCmd = db.command
 const ONLINE_WINDOW_MS = 15 * 1000
+const telemetryConfig = createConfig({ pluginId: 'telemetry' }).config()
+
+function getWSConfig() {
+	const root = telemetryConfig && typeof telemetryConfig === 'object' ? telemetryConfig : {}
+	const telemetry = root.telemetry && typeof root.telemetry === 'object' ? root.telemetry : {}
+	const ws = telemetry.ws && typeof telemetry.ws === 'object' ? telemetry.ws : {}
+	return {
+		url: String(ws.url || '').trim(),
+		token: String(ws.token || '').trim()
+	}
+}
 
 function fail(errMsg, errCode = 1, data = {}) {
 	return { errCode, errMsg, ...data }
@@ -321,5 +333,19 @@ module.exports = {
 			telemetry_latest: normalizedTelemetry,
 			faults: []
 		}
+	},
+
+	/**
+	 * 获取 WebSocket 连接配置（首版：从 config-center 读取静态 token）
+	 * 前端拿到后用于连接 IoT Gateway /ws 端点。
+	 *
+	 * 注意：当前 token 为长期固定字符串，仅适合开发期。后续会改为
+	 * 云函数现签发的 HMAC 短期令牌。
+	 */
+	async getWSConfig() {
+		const cfg = getWSConfig()
+		if (!cfg.url) throw fail('未配置 WebSocket 地址', 500)
+		if (!cfg.token) throw fail('未配置 WebSocket token', 500)
+		return { url: cfg.url, token: cfg.token }
 	}
 }
