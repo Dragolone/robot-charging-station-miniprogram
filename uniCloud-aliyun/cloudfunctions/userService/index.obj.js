@@ -20,7 +20,7 @@ function getWSConfig() {
 	const ws = telemetry.ws && typeof telemetry.ws === 'object' ? telemetry.ws : {}
 	return {
 		url: String(ws.url || '').trim(),
-		token: String(ws.token || '').trim()
+		secret: String(ws.secret || '').trim()
 	}
 }
 
@@ -336,16 +336,32 @@ module.exports = {
 	},
 
 	/**
-	 * 获取 WebSocket 连接配置（首版：从 config-center 读取静态 token）
-	 * 前端拿到后用于连接 IoT Gateway /ws 端点。
+	 * 获取 WebSocket 连接令牌（HMAC-SHA256 签名，1 小时有效）
 	 *
-	 * 注意：当前 token 为长期固定字符串，仅适合开发期。后续会改为
-	 * 云函数现签发的 HMAC 短期令牌。
+	 * 替换原 getWSConfig 静态 token 方案：
+	 * - 静态 token 一旦泄露需要轮换全部客户端，且任意客户端都可冒充别人
+	 * - 改为 `${uid}:${expiresAt}:${HMAC_SHA256(secret, "uid:expiresAt")}`
+	 *   后，IoT Gateway 用同一 secret 校验签名 + 过期时间，泄露的 token
+	 *   也只能在剩余时间内使用，且 uid 不可伪造
+	 *
+	 * 服务端 secret 落在 uni-config-center（不进客户端包），客户端只
+	 * 拿到一次性签发的 token。
 	 */
-	async getWSConfig() {
+	async getWSToken() {
+		const uid = this.auth.uid
+		const crypto = require('crypto')
 		const cfg = getWSConfig()
+		if (!cfg.secret) throw fail('未配置 WebSocket 密钥', 500)
 		if (!cfg.url) throw fail('未配置 WebSocket 地址', 500)
-		if (!cfg.token) throw fail('未配置 WebSocket token', 500)
-		return { url: cfg.url, token: cfg.token }
+
+		const expiresAt = Date.now() + 3600000
+		const payload = `${uid}:${expiresAt}`
+		const signature = crypto.createHmac('sha256', cfg.secret).update(payload).digest('hex')
+
+		return {
+			url: cfg.url,
+			token: `${uid}:${expiresAt}:${signature}`,
+			expiresAt
+		}
 	}
 }

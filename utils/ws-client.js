@@ -1,8 +1,8 @@
 /**
- * WebSocket 实时推送客户端（早期版本）
+ * WebSocket 实时推送客户端
  *
  * 与 IoT Gateway 的 /ws 端点通信，接收机器人遥测数据。
- * 当前使用 userService.getWSConfig() 返回的静态 token，后续会改为云函数签发的 HMAC 临时令牌。
+ * 连接前从 userService.getWSToken() 获取 HMAC 签名令牌（不硬编码密钥）。
  * 断线时自动降级为 HTTP 轮询，重连后恢复实时推送。
  */
 
@@ -11,6 +11,7 @@ import { robotListState, setWSActive, startAutoRefresh } from './robot-store.js'
 
 const HEARTBEAT_MS = 25000
 const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000, 30000]
+const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000
 
 let socketTask = null
 let heartbeatTimer = null
@@ -18,7 +19,9 @@ let reconnectTimer = null
 let reconnectAttempt = 0
 let manualClose = false
 
+let _wsConfig = null
 let _userService = null
+
 function getUserService() {
 	if (!_userService) {
 		_userService = uniCloud.importObject('userService', { customUI: true })
@@ -27,7 +30,14 @@ function getUserService() {
 }
 
 async function fetchWSConfig() {
-	return getUserService().getWSConfig()
+	const res = await getUserService().getWSToken()
+	_wsConfig = res
+	return res
+}
+
+function isTokenValid() {
+	return _wsConfig && _wsConfig.token && _wsConfig.url &&
+		_wsConfig.expiresAt > Date.now() + TOKEN_REFRESH_BUFFER_MS
 }
 
 export async function connectWS() {
@@ -36,16 +46,20 @@ export async function connectWS() {
 
 	manualClose = false
 
-	let cfg
 	try {
-		cfg = await fetchWSConfig()
+		if (!isTokenValid()) {
+			await fetchWSConfig()
+		}
 	} catch (e) {
-		console.error('[ws] 获取连接配置失败:', e)
+		if (reconnectAttempt < 3) {
+			console.error('[ws] 获取 token 失败:', e)
+		}
+		if (reconnectAttempt >= 5) return
 		scheduleReconnect()
 		return
 	}
 
-	const url = `${cfg.url}?token=${encodeURIComponent(cfg.token || '')}`
+	const url = `${_wsConfig.url}?token=${encodeURIComponent(_wsConfig.token)}`
 
 	socketTask = uni.connectSocket({ url, success() {}, fail(err) {
 		console.error('[ws] 连接失败:', err)
@@ -71,6 +85,8 @@ export async function connectWS() {
 		cleanup()
 		socketTask = null
 		setWSActive(false)
+		// 自然断开：立刻降级为 HTTP 轮询 + 立即拉一次补全 UI + 调度重连
+		// 手动关闭（登出 / App 切后台）：不触发轮询和重连
 		if (!manualClose) {
 			startAutoRefresh({ immediate: true })
 			scheduleReconnect()
@@ -89,6 +105,10 @@ export function disconnectWS() {
 		try { socketTask.close({}) } catch (e) {}
 		socketTask = null
 	}
+}
+
+export function clearWSConfig() {
+	_wsConfig = null
 }
 
 export function isWSConnected() {
