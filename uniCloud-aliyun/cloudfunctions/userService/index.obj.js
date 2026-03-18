@@ -137,17 +137,98 @@ module.exports = {
 		const res = await db
 			.collection('uni-id-users')
 			.where({ _id: uid })
-			.field({ username: true, nickname: true, avatar: true, mobile: true })
+			.field({
+				username: true,
+				nickname: true,
+				avatar: true
+				// mobile: true  // 暂时屏蔽，待接入微信隐私授权合规流程后恢复
+			})
 			.limit(1)
 			.get()
+
 		const user = res.data && res.data.length ? res.data[0] : null
+
 		return {
 			uid,
 			username: user?.username || '',
 			nickname: user?.nickname || '',
-			avatar: user?.avatar || '',
-			mobile: user?.mobile || ''
+			avatar: user?.avatar || ''
+			// mobile: user?.mobile || ''  // 暂时屏蔽
 		}
+	},
+
+	/**
+	 * 更新当前登录用户资料
+	 * - 仅允许修改 nickname / avatar
+	 * - 必须基于 this.auth.uid，禁止前端传 uid 指定他人
+	 */
+	async updateMyProfile(data = {}) {
+		const uid = this.auth.uid
+		const payload = data && typeof data === 'object' ? data : {}
+
+		if (payload.uid || payload.userId || payload._id) {
+			// 明确拒绝“试图指定 uid”的行为
+			throw fail('不允许指定 uid 更新资料', 403)
+		}
+
+		const updateDoc = {
+			updateTime: Date.now()
+		}
+		const responseData = {
+			ok: true,
+			uid
+		}
+		let hasUpdatableField = false
+
+		if (Object.prototype.hasOwnProperty.call(payload, 'nickname')) {
+			let nickname = payload.nickname
+			if (typeof nickname !== 'string') nickname = String(nickname ?? '')
+			nickname = nickname.trim()
+			if (!nickname) throw fail('昵称不能为空', 400)
+			if (nickname.length < 1 || nickname.length > 20) {
+				throw fail('昵称长度需为 1~20', 400)
+			}
+			updateDoc.nickname = nickname
+			responseData.nickname = nickname
+			hasUpdatableField = true
+		}
+
+		if (Object.prototype.hasOwnProperty.call(payload, 'avatar')) {
+			let avatar = payload.avatar
+			if (typeof avatar !== 'string') avatar = String(avatar ?? '')
+			avatar = avatar.trim()
+			if (avatar) {
+				updateDoc.avatar = avatar
+				responseData.avatar = avatar
+				hasUpdatableField = true
+			}
+		}
+
+		if (!hasUpdatableField) {
+			throw fail('未提供可更新的资料字段', 400)
+		}
+
+		await db.collection('uni-id-users').doc(uid).update(updateDoc)
+
+		return responseData
+	},
+
+	/**
+	 * 注册后保存邮箱（用于找回密码）
+	 * - 仅写入当前用户，不允许指定他人
+	 */
+	async saveEmail(email) {
+		const uid = this.auth.uid
+		if (!email || typeof email !== 'string') throw fail('邮箱不能为空', 400)
+		const trimmed = email.trim().toLowerCase()
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) throw fail('邮箱格式不正确', 400)
+
+		await db.collection('uni-id-users').doc(uid).update({
+			email: trimmed,
+			email_confirmed: 1,
+			updateTime: Date.now()
+		})
+		return { ok: true }
 	},
 
 	/**
