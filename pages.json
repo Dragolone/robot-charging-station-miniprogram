@@ -43,6 +43,42 @@
 			"style": {
 				"navigationBarTitleText": "修改昵称"
 			}
+		},
+		{
+			"path": "pages/settings/settings",
+			"style": {
+				"navigationBarTitleText": "设置"
+			}
+		},
+		{
+			"path": "pages/settings/about",
+			"style": {
+				"navigationBarTitleText": "关于我们"
+			}
+		},
+		{
+			"path": "pages/settings/privacy",
+			"style": {
+				"navigationBarTitleText": "安全与隐私"
+			}
+		},
+		{
+			"path": "pages/settings/help",
+			"style": {
+				"navigationBarTitleText": "使用帮助"
+			}
+		},
+		{
+			"path": "pages/agreements/service",
+			"style": {
+				"navigationBarTitleText": "用户服务协议"
+			}
+		},
+		{
+			"path": "pages/agreements/privacy",
+			"style": {
+				"navigationBarTitleText": "隐私政策条款"
+			}
 		}
 	,{
     "path": "uni_modules/uni-id-pages/pages/register/register",
