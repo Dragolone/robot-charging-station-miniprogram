@@ -1,0 +1,38 @@
+{
+  "provider": "aliyun",
+  "spaceId": "mp-xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "clientSecret": "请在 uniCloud 控制台 -> 服务空间 -> 开发者密钥 获取",
+
+  "robotsRefreshMs": 300000,
+
+  "telemetry": {
+    "intervalMinMs": 10000,
+    "intervalMaxMs": 15000,
+    "batteryDeltaMin": 0.1,
+    "batteryDeltaMax": 0.3,
+    "xyStepMin": 0.0001,
+    "xyStepMax": 0.0006,
+    "batteryDecimals": 1,
+    "xyDecimals": 4
+  },
+
+  "fault": {
+    "tryIntervalMinMs": 60000,
+    "tryIntervalMaxMs": 120000,
+    "probability": 0.05
+  },
+
+  "command": {
+    "pollIntervalMinMs": 5000,
+    "pollIntervalMaxMs": 10000,
+    "fetchLimit": 20,
+    "executeDelayMinMs": 1000,
+    "executeDelayMaxMs": 3000,
+    "completeProbability": 0.85
+  },
+
+  "log": {
+    "level": "info"
+  }
+}
+
