@@ -1,85 +1,85 @@
 {
 	"pages": [
-		{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "首页"
-			}
-		},
-		{
-			"path": "pages/login/index",
-			"style": {
-				"navigationBarTitleText": "登录"
-			}
-		},
-		{
-			"path": "pages/robots/index",
-			"style": {
-				"navigationStyle": "custom",
-				"navigationBarTitleText": "机器人"
-			}
-		},
-		{
-			"path": "pages/my/index",
-			"style": {
-				"navigationStyle": "custom",
-				"navigationBarTitleText": "我的"
-			}
-		},
-		{
-			"path": "pages/robots/detail",
-			"style": {
-				"navigationStyle": "custom"
-			}
-		},
-		{
-			"path": "pages/profile/index",
-			"style": {
-				"navigationBarTitleText": "个人资料"
-			}
-		},
-		{
-			"path": "pages/profile/edit-nickname",
-			"style": {
-				"navigationBarTitleText": "修改昵称"
-			}
-		},
-		{
-			"path": "pages/settings/settings",
-			"style": {
-				"navigationBarTitleText": "设置"
-			}
-		},
-		{
-			"path": "pages/settings/about",
-			"style": {
-				"navigationBarTitleText": "关于我们"
-			}
-		},
-		{
-			"path": "pages/settings/privacy",
-			"style": {
-				"navigationBarTitleText": "安全与隐私"
-			}
-		},
-		{
-			"path": "pages/settings/help",
-			"style": {
-				"navigationBarTitleText": "使用帮助"
-			}
-		},
-		{
-			"path": "pages/agreements/service",
-			"style": {
-				"navigationBarTitleText": "用户服务协议"
-			}
-		},
-		{
-			"path": "pages/agreements/privacy",
-			"style": {
-				"navigationBarTitleText": "隐私政策条款"
-			}
+	  {
+		"path": "pages/index/index",
+		"style": {
+		  "navigationBarTitleText": "首页"
 		}
+	  },
+	  {
+		"path": "pages/login/index",
+		"style": {
+		  "navigationBarTitleText": "登录"
+		}
+	  },
+	  {
+		"path": "pages/robots/index",
+		"style": {
+		  "navigationStyle": "custom",
+		  "navigationBarTitleText": "机器人"
+		}
+	  },
+	  {
+		"path": "pages/my/index",
+		"style": {
+		  "navigationStyle": "custom",
+		  "navigationBarTitleText": "我的"
+		}
+	  },
+	  {
+		"path": "pages/profile/index",
+		"style": {
+		  "navigationBarTitleText": "个人资料"
+		}
+	  },
+	  {
+		"path": "pages/profile/edit-nickname",
+		"style": {
+		  "navigationBarTitleText": "修改昵称"
+		}
+	  },
+	  {
+		"path": "pages/robots/detail",
+		"style": {
+		  "navigationStyle": "custom"
+		}
+	  },
+	  {
+		"path": "pages/settings/settings",
+		"style": {
+		  "navigationBarTitleText": "设置"
+		}
+	  },
+	  {
+		"path": "pages/settings/about",
+		"style": {
+		  "navigationBarTitleText": "关于我们"
+		}
+	  },
+	  {
+		"path": "pages/settings/privacy",
+		"style": {
+		  "navigationBarTitleText": "安全与隐私"
+		}
+	  },
+	  {
+		"path": "pages/settings/help",
+		"style": {
+		  "navigationBarTitleText": "使用帮助"
+		}
+	  },
+	  {
+		"path": "pages/agreements/service",
+		"style": {
+		  "navigationBarTitleText": "用户服务协议"
+		}
+	  },
+	  {
+		"path": "pages/agreements/privacy",
+		"style": {
+		  "navigationBarTitleText": "隐私政策条款"
+		}
+	  }
 	,{
     "path": "uni_modules/uni-id-pages/pages/register/register",
     "style": {
@@ -182,6 +182,12 @@
     }
 }
 ],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "机器人充电站",
+		"navigationBarBackgroundColor": "#F8F9FA",
+		"backgroundColor": "#F8F9FA"
+	},
 	"tabBar": {
 		"color": "#6b7280",
 		"selectedColor": "#5427e6",
@@ -204,11 +210,5 @@
 	},
 	"uniIdRouter": {
 		"loginPage": "pages/login/index"
-	},
-	"globalStyle": {
-		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "机器人充电站",
-		"navigationBarBackgroundColor": "#F8F9FA",
-		"backgroundColor": "#F8F9FA"
 	}
 }
