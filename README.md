@@ -8,6 +8,7 @@
 [![uniCloud](https://img.shields.io/badge/uniCloud-Aliyun-orange.svg)](https://uniapp.dcloud.net.cn/uniCloud/)
 [![MQTT](https://img.shields.io/badge/IoT-MQTT%20%2F%20WebSocket-blue.svg)](#-architecture)
 [![Platform](https://img.shields.io/badge/Platform-WeChat%20Mini%20Program-brightgreen.svg)](#)
+[![Status](https://img.shields.io/badge/Status-Reference%20Implementation-blue.svg)](#)
 
 端到端的机器人车队管理小程序：覆盖 **实时遥测 → 远程遥控 → 故障管理 → 用户绑定** 全链路，前端 / 云函数 / IoT 网关 之间通过统一鉴权通道串联。代码以 MIT License 开源，使用前请替换所有占位密钥。
 
