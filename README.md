@@ -1,11 +1,31 @@
 # Robot Charging Station Mini Program
 
-> 微信小程序 · 机器人远程管理与遥控平台
-> uni-app (Vue 3) + uniCloud + IoT Gateway (MQTT / WebSocket)
+> 微信小程序 · 机器人远程管理与实时遥控平台
+> uni-app (Vue 3) + uniCloud Serverless + IoT Gateway (MQTT / WebSocket)
 
-> **本仓库为个人学习与作品集项目（personal portfolio）**，用于展示全栈 + IoT 端到端设计能力。代码以 MIT License 开源，使用前请替换所有占位密钥。
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![uni-app](https://img.shields.io/badge/uni--app-Vue%203-42b883.svg)](https://uniapp.dcloud.net.cn/)
+[![uniCloud](https://img.shields.io/badge/uniCloud-Aliyun-orange.svg)](https://uniapp.dcloud.net.cn/uniCloud/)
+[![MQTT](https://img.shields.io/badge/IoT-MQTT%20%2F%20WebSocket-blue.svg)](#-architecture)
+[![Platform](https://img.shields.io/badge/Platform-WeChat%20Mini%20Program-brightgreen.svg)](#)
 
-> 🌏 **English version below** — scroll down to the [English README](#english-version) for the full translated documentation.
+端到端的机器人车队管理小程序：覆盖 **实时遥测 → 远程遥控 → 故障管理 → 用户绑定** 全链路，前端 / 云函数 / IoT 网关 之间通过统一鉴权通道串联。代码以 MIT License 开源，使用前请替换所有占位密钥。
+
+> 🌏 **English version below** — scroll down to the [English README](#english-version).
+
+---
+
+## 📑 Table of Contents
+
+- [Features](#-features)
+- [Tech Highlights](#-tech-highlights)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Database](#-database)
+- [Security](#-security)
+- [Quick Start](#-quick-start)
+- [License](#-license)
+- [Disclaimer](#️-disclaimer)
 
 ---
 
@@ -19,6 +39,17 @@
 | **故障管理** | 故障记录列表 + 严重等级 |
 | **机器人绑定** | 手动输入 / 扫码（支持 `robot-bind:CODE` / JSON / URL 三种格式），排他绑定 |
 | **用户体系** | uni-id 鉴权 + 路由守卫 + 邮箱注册找回密码，统一中文错误提示 |
+
+---
+
+## 🛠 Tech Highlights
+
+- **零依赖状态管理**：Vue 3 reactive 对象 + localStorage，避免 Vuex/Pinia 重量级开销
+- **Stale-while-revalidate 缓存**：列表 + 详情 5 分钟 TTL + 20 条上限 + 3s 节流 + JSON diff 检测，进入页面先渲染缓存再后台刷新
+- **WebSocket 三态指示**：live / polling / idle，UI 直接绑定响应式 `wsState.mode`，连接异常时无感切换 HTTP 轮询
+- **Deadman 速度向量协议**：`{vx, vy, wz, enable}`，200ms 间隔连续发送，IoT 端 1s 超时急停，断包即停车
+- **uniCloud 单通道鉴权**：所有 API 走 `userService` 云对象，`_before` 钩子统一校验，前端永远不传 uid
+- **WebSocket HMAC 动态令牌**：`uid:expiresAt:hmac` 签发，1 小时有效，避免小程序包反编译即拿到长期 token
 
 ---
 
@@ -204,16 +235,6 @@ HBuilderX → 运行 → 微信开发者工具（mp-weixin）
 
 ---
 
-## 🛠 Tech Highlights
-
-- **零依赖状态管理**：Vue 3 reactive 对象 + localStorage，避免 Vuex/Pinia 重量级开销
-- **Stale-while-revalidate 缓存**：列表 + 详情 5 分钟 TTL + 20 条上限 + 3s 节流 + JSON diff 检测
-- **WebSocket 三态指示**：live / polling / idle，UI 直接绑定响应式 `wsState.mode`
-- **deadman 速度向量协议**：`{vx, vy, wz, enable}`，200ms 间隔连续发送，IoT 端 1s 超时急停
-- **uniCloud 单通道鉴权**：所有 API 走 `userService` 云对象，`_before` 钩子统一校验，禁止前端传 uid
-
----
-
 ## 📜 License
 
 [MIT License](LICENSE) — Copyright (c) 2026 Dragolone
@@ -222,7 +243,7 @@ HBuilderX → 运行 → 微信开发者工具（mp-weixin）
 
 ## ⚠️ Disclaimer
 
-本项目为个人学习作品，**不构成任何商业服务承诺**。第三方品牌（微信、uni-app、uniCloud 等）名称及商标归原所有方所有。代码示例可自由使用，但部署到生产环境前请务必：
+本项目为开源参考实现，**不构成任何商业服务承诺**。第三方品牌（微信、uni-app、uniCloud 等）名称及商标归原所有方所有。代码可在 MIT License 范围内自由使用，但部署到生产环境前请务必：
 
 1. 替换所有 `REPLACE_WITH_*` 占位符为强随机值
 2. 不要公开任何真实密钥到 git 历史
@@ -234,10 +255,24 @@ HBuilderX → 运行 → 微信开发者工具（mp-weixin）
 
 # English Version
 
-> WeChat Mini Program · Robot remote management & teleoperation platform
-> uni-app (Vue 3) + uniCloud + IoT Gateway (MQTT / WebSocket)
+> WeChat Mini Program · Robot remote management & real-time teleoperation platform
+> uni-app (Vue 3) + uniCloud Serverless + IoT Gateway (MQTT / WebSocket)
 
-> **This repository is a personal learning & portfolio project**, intended to showcase end-to-end full-stack + IoT design capabilities. The code is open-sourced under the MIT License — replace all placeholder secrets before use.
+An end-to-end robot fleet management mini program covering the full **realtime telemetry → remote teleoperation → fault management → user binding** loop. Frontend, cloud functions, and the IoT gateway are wired together through a single auth-enforced channel. Open-sourced under the MIT License — replace all placeholder secrets before use.
+
+---
+
+## 📑 Table of Contents
+
+- [Features](#-features-1)
+- [Tech Highlights](#-tech-highlights-1)
+- [Architecture](#-architecture-1)
+- [Project Structure](#-project-structure-1)
+- [Database](#-database-1)
+- [Security](#-security-1)
+- [Quick Start](#-quick-start-1)
+- [License](#-license-1)
+- [Disclaimer](#️-disclaimer-1)
 
 ---
 
@@ -251,6 +286,17 @@ HBuilderX → 运行 → 微信开发者工具（mp-weixin）
 | **Fault Management** | Fault log list with severity levels. |
 | **Robot Binding** | Manual entry / QR scan (supports `robot-bind:CODE`, JSON, or URL formats). Exclusive binding. |
 | **User System** | uni-id authentication + route guards + email registration & password recovery. Unified Chinese error messages. |
+
+---
+
+## 🛠 Tech Highlights
+
+- **Zero-dependency state management**: Vue 3 reactive objects + localStorage, avoiding the overhead of Vuex/Pinia.
+- **Stale-while-revalidate cache**: list + detail with 5-minute TTL, 20-entry cap, 3s throttle, and JSON diff change detection — pages render from cache first, then refresh in the background.
+- **Tri-state WebSocket indicator**: live / polling / idle, UI directly bound to reactive `wsState.mode`; transparently falls back to HTTP polling on disconnect.
+- **Deadman velocity-vector protocol**: `{vx, vy, wz, enable}` sent every 200ms; the IoT side performs a 1s-timeout emergency stop — drop the stream, drop the throttle.
+- **Single-channel uniCloud auth**: every API goes through the `userService` cloud object, the `_before` hook enforces auth uniformly, and the frontend never supplies a uid.
+- **HMAC-signed dynamic WebSocket tokens**: `uid:expiresAt:hmac` valid for 1 hour, sidestepping the "decompile the mini program package and steal a long-lived token" risk.
 
 ---
 
@@ -436,16 +482,6 @@ HBuilderX → Run → WeChat DevTools (mp-weixin)
 
 ---
 
-## 🛠 Tech Highlights
-
-- **Zero-dependency state management**: Vue 3 reactive objects + localStorage, avoiding the overhead of Vuex/Pinia.
-- **Stale-while-revalidate cache**: list + detail with 5-minute TTL, 20-entry cap, 3s throttle, and JSON diff change detection.
-- **Tri-state WebSocket indicator**: live / polling / idle, UI directly bound to reactive `wsState.mode`.
-- **Deadman velocity-vector protocol**: `{vx, vy, wz, enable}` sent every 200ms; the IoT side performs a 1s-timeout emergency stop.
-- **Single-channel uniCloud auth**: every API goes through the `userService` cloud object, the `_before` hook enforces auth uniformly, and frontend-supplied uid is forbidden.
-
----
-
 ## 📜 License
 
 [MIT License](LICENSE) — Copyright (c) 2026 Dragolone
@@ -454,7 +490,7 @@ HBuilderX → Run → WeChat DevTools (mp-weixin)
 
 ## ⚠️ Disclaimer
 
-This project is a personal learning portfolio piece and **does not constitute any commercial service commitment**. Third-party brands (WeChat, uni-app, uniCloud, etc.) and their trademarks belong to their respective owners. The code samples are free to use, but before deploying to production you must:
+This project is an open-source reference implementation and **does not constitute any commercial service commitment**. Third-party brands (WeChat, uni-app, uniCloud, etc.) and their trademarks belong to their respective owners. The code is free to use within the terms of the MIT License, but before deploying to production you must:
 
 1. Replace all `REPLACE_WITH_*` placeholders with strong random values
 2. Never expose any real secret to git history
