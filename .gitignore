@@ -37,3 +37,7 @@ logs/
 # 个人笔记 / 临时文件
 Zql.md
 确认清单.txt
+
+# 本地密钥配置（由 node scripts/setup.js 从 config.example.json 生成，切勿提交）
+uni_modules/uni-config-center/uniCloud/cloudfunctions/common/uni-config-center/*/config.json
+simulator/config.json

@@ -4,12 +4,12 @@
     "minReportIntervalMs": 3000,
     "duplicateWindowMs": 10000,
     "commandBridge": {
-      "url": "https://your-gateway.example.com/sendCommand",
+      "url": "",
       "token": "REPLACE_WITH_BRIDGE_TOKEN",
       "timeoutMs": 5000
     },
     "ws": {
-      "url": "wss://your-gateway.example.com/ws",
+      "url": "ws://127.0.0.1:8787/ws",
       "secret": "REPLACE_WITH_WS_HMAC_SECRET"
     }
   }
