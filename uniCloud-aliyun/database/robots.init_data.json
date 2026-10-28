@@ -2,10 +2,9 @@
   {
     "robotCode": "ROBOT-001",
     "model": "AGV-2000",
-    "online": true,
     "location": {
-      "x": 120.5,
-      "y": 30.2
+      "x": 0,
+      "y": 0
     },
     "createTime": 1705291825000,
     "updateTime": 1705291825000
@@ -13,10 +12,9 @@
   {
     "robotCode": "ROBOT-002",
     "model": "AGV-2000",
-    "online": true,
     "location": {
-      "x": 120.6,
-      "y": 30.3
+      "x": 5,
+      "y": 3
     },
     "createTime": 1705291825000,
     "updateTime": 1705291825000

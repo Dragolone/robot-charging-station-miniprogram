@@ -1,0 +1,18 @@
+[
+  {
+    "IndexName": "robotCode_ts",
+    "MgoKeySchema": {
+      "MgoIndexKeys": [
+        {
+          "Name": "robotCode",
+          "Direction": "1"
+        },
+        {
+          "Name": "ts",
+          "Direction": "-1"
+        }
+      ],
+      "MgoIsUnique": false
+    }
+  }
+]

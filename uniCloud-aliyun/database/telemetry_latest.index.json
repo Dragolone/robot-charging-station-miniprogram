@@ -1,0 +1,14 @@
+[
+  {
+    "IndexName": "robotCode",
+    "MgoKeySchema": {
+      "MgoIndexKeys": [
+        {
+          "Name": "robotCode",
+          "Direction": "1"
+        }
+      ],
+      "MgoIsUnique": true
+    }
+  }
+]

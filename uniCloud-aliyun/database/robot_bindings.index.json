@@ -1,0 +1,30 @@
+[
+  {
+    "IndexName": "uid_robotCode",
+    "MgoKeySchema": {
+      "MgoIndexKeys": [
+        {
+          "Name": "uid",
+          "Direction": "1"
+        },
+        {
+          "Name": "robotCode",
+          "Direction": "1"
+        }
+      ],
+      "MgoIsUnique": false
+    }
+  },
+  {
+    "IndexName": "robotCode",
+    "MgoKeySchema": {
+      "MgoIndexKeys": [
+        {
+          "Name": "robotCode",
+          "Direction": "1"
+        }
+      ],
+      "MgoIsUnique": false
+    }
+  }
+]
