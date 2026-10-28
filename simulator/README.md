@@ -1,100 +1,108 @@
-### Phase 6：低频、省资源的数据模拟器（本地脚本）
+# 机器人模拟器（Mock IoT Gateway）
 
-只**新增**本目录脚本，不修改任何既有前端/后台/菜单/云函数/数据库结构。
+用来替代真实 IoT Gateway 和机器人，让你**没有硬件也能把整条链路跑通**：遥测上报 → 小程序实时显示 → 遥控指令 → 虚拟机器人移动 → 新遥测。
 
-本脚本会向以下集合写入“看起来像真实运行”的数据（严格控制频率，尽量少读写）：
-- `telemetry_latest`：10–15 秒/台更新一次（无变化不写库）
-- `faults`：1–2 分钟尝试一次，低概率（默认 5%）写入故障
-- `commands`：5–10 秒轮询一次 `status="pending"`，无 pending 不写库；对 pending 模拟 1–3 秒执行后回写 `completed/failed`
+- 零依赖，只需要 Node.js ≥ 18，不用 `npm install`
+- 和真实 Gateway 实现同一套接口（见下文[接口契约](#gateway-接口契约)），换上真实硬件时云端和前端都不用改
+- 密钥直接读 `uni-config-center/telemetry/config.json`，和云端保持一致
 
----
-
-### 依赖安装
-
-进入本目录安装依赖：
-
-```bash
-cd simulator
-# 清掉本机过期 token（避免出现 “Access token expired or revoked” 干扰安装）
-npm logout || true
-npm config delete //registry.npmjs.org/:_authToken || true
-npm i
+```
+小程序 ──sendCommand──► userService ──POST /sendCommand──► 模拟器 ──► 虚拟机器人
+   ▲                                                         │
+   └──────────── WS /ws 实时推送 ◄───────────────────────────┤
+                                                             │
+   userService ◄── telemetry_latest ◄── telemetryIngest ◄────┘ 每 10s 上报（行驶中 4s）
 ```
 
-> 说明：本目录自带 `simulator/.npmrc`，把 `@dcloudio` scope 指向 DCloud registry（`https://registry.dcloud.io/`），否则在 npmjs 会 404。
+## 快速使用
 
----
-
-### uniCloud 访问配置示例
-
-1) 复制配置模板并填写：
+在仓库根目录：
 
 ```bash
-cd simulator
-cp config.example.json config.json
+node scripts/setup.js        # 首次：生成密钥（已生成可跳过）
+node simulator --ingest-url https://<服务空间域名>/telemetryIngest
 ```
 
-2) 编辑 `config.json`（最少需要 3 个字段）：
-- `spaceId`：你的 uniCloud 阿里云服务空间 SpaceId
-- `clientSecret`：uniCloud 控制台 -> 服务空间 -> 开发者密钥（ClientSecret）
-- `provider`：`aliyun`
+`ingestUrl` 来自 uniCloud 控制台 → 云函数/云对象 → `telemetryIngest` → 云函数 URL 化。也可以用 `node scripts/setup.js --ingest-url <url>` 写进 `simulator/config.json`，之后直接 `node simulator`。
 
----
+启动成功后，每台机器人第一次上报成功时，终端会打印 `遥测上报成功 ROBOT-001 → 小程序中应显示「在线」`。
 
-### 运行方式
+## 虚拟机器人的行为
+
+| 指令 | 行为 |
+|---|---|
+| `move {vx, vy, wz, enable}` | 速度控制：`vx/vy` × 0.6 m/s，`wz` × 1.2 rad/s。**超过 1s 收不到新的 move 就自动急停（deadman）**，跟真实 IoT 端一样 |
+| `move {direction}` / `move {x, y}` | 兼容旧协议，换算成速度指令 |
+| `goto {x, y}` | 先原地转向目标，再驶向目标，到达后停止 |
+| `stop` | 立即停止，取消 goto |
+
+电量会随时间缓慢下降，行驶时下降更快，这样数据看起来是"活"的。
+
+## 配置
+
+`simulator/config.json` 可以不建，不建就用默认值，字段参考 [`config.example.json`](config.example.json)：
+
+| 字段 | 默认 | 说明 |
+|---|---|---|
+| `ingestUrl` | — | telemetryIngest 的 URL 化地址（必填） |
+| `host` / `port` | `127.0.0.1` / `8787` | 监听地址；真机在局域网调试时把 host 改成 `0.0.0.0` |
+| `robots` | ROBOT-001、ROBOT-002 | 虚拟机器人列表，`robotCode` 必须已在 `robots` 集合中 |
+| `reportIntervalMs` | 10000 | 静止时的上报间隔。必须小于 15s 的在线窗口 |
+| `activeReportIntervalMs` | 4000 | 行驶中的上报间隔。必须大于 telemetryIngest 的 3s 限流 |
+| `wsPushIntervalMs` | 1000 | WebSocket 推送间隔 |
+| `deadmanMs` | 1000 | 急停超时 |
+
+命令行参数：`--ingest-url`、`--port`、`--host`、`--config`、`--telemetry-config`，另有 `--no-ingest`（只开 `/sendCommand` 和 `/ws`，不上报遥测）。完整说明见 `node simulator --help`。
+
+## 自测
 
 ```bash
-cd simulator
-npm run start
+node --test simulator/index.test.js
 ```
 
-或指定配置文件路径：
-
-```bash
-cd simulator
-node index.js --config /绝对路径/config.json
-```
+覆盖令牌校验、deadman 急停、goto、WebSocket 鉴权与推送、遥测上报格式。
 
 ---
 
-### 模拟逻辑说明（如何省资源）
+## Gateway 接口契约
 
-- **Telemetry**
-  - 对每台机器人维护内存缓存 state（电量/位置）。
-  - 每次生成小幅变化后，会按配置的位数舍入（电量 1 位小数、坐标 4 位小数）。
-  - 若“舍入后”与上一次一致，则**跳过写库**（包含 lastSeen/ts 一并不写）。
-  - 写库使用 `update(where robotCode)`，仅首次不存在时才 `add`（减少读库）。
+接入真实硬件时，你自己的 Gateway 需要实现下面三个接口。模拟器的 [`index.js`](index.js) 就是一份可以直接对照的参考实现。
 
-- **Fault**
-  - 全局 1–2 分钟才尝试一次。
-  - 命中概率默认 5%，否则不写库。
-  - 写入字段：`robotCode / level / message / createdAt`，并附带 `ts` 方便索引 `robotCode+ts`。
+### 1. 接收指令：`POST {telemetry.commandBridge.url}`
 
-- **Command 消费**
-  - 5–10 秒轮询一次 `commands`，仅查询 `status="pending"`，没有 pending 不写库。
-  - 对每条 pending，模拟 1–3 秒后更新：
-    - `status: completed | failed`
-    - `ackAt`
-    - `message`
-  - 更新时带条件 `_id + status=pending`，避免并发重复消费。
+调用方是 `userService.sendCommand`，它运行在 uniCloud 上，所以**这个地址必须能从公网访问**。
 
----
+- 请求头：`x-command-token: {telemetry.commandBridge.token}`
+- 请求体：
 
-### 验收标准（你如何验证）
+  ```json
+  { "requestId": "cmd_...", "commandId": "...", "robotCode": "ROBOT-001", "cmd": "move", "params": { "vx": 0.5, "vy": 0, "wz": 0, "enable": true }, "ts": 1705291825000 }
+  ```
 
-在 **后台管理项目**（你已完成且稳定的 Phase 5）中验证：
+  | cmd | params |
+  |---|---|
+  | `move` | `{vx, vy, wz, enable}`，取值都在 −1 ~ 1，`enable=false` 等同停止 |
+  | `stop` | `{vx: 0, vy: 0, wz: 0, enable: false}` |
+  | `goto` | `{x, y}` |
 
-- **Telemetry 缓慢变化**
-  - 进入机器人详情/列表数据面板
-  - 预期：`vehicleBattery/packBattery` 每 10–15 秒有小幅变化（±0.1～0.3，0–100 之间）
-  - 预期：位置 `x/y` 小范围随机游走
-  - 预期：`lastSeen` 随更新变化（仅在写库时变化）
+- 响应：`{"code": 0, "msg": "ok"}` 表示成功，`commands.status` 会变成 `sent`；其它 code 会变成 `failed`，`msg` 记入 `errorMessage`
+- 超时：`telemetry.commandBridge.timeoutMs`（默认 5000ms）
+- 按住 D-pad 或摇杆时，前端以 **5Hz** 连续下发 move。Gateway 侧应实现 deadman：超时收不到新的 move 就急停
 
-- **命令会被消费**
-  - 在后台新建一条 `commands` 记录（或通过你现有前端下发），并确保 `status="pending"`
-  - 预期：5–10 秒内变为 `completed` 或 `failed`，同时写入 `ackAt/message`
+### 2. 实时推送：`WS {telemetry.ws.url}?token=...`
 
-- **偶尔出现故障**
-  - 预期：每 1–2 分钟“尝试一次”，约 5% 概率出现一条新 fault（取决于运行时长）
-  - 在后台故障列表中能看到新增记录：`robotCode/level/message/createdAt`
+- `token` = `${uid}:${expiresAt}:${hex(HMAC-SHA256(ws.secret, "${uid}:${expiresAt}"))}`，由 `userService.getWSToken` 签发，有效期 1 小时。Gateway 要校验签名和 `expiresAt > now`
+- 推送格式：
 
+  ```json
+  { "type": "telemetry", "robotCode": "ROBOT-001", "data": { "vehicleBattery": 85.5, "packBattery": 92.3, "speed": 0.3, "ts": 1705291825000 } }
+  ```
+
+- 客户端每 25s 发一次 `{"type": "ping"}`
+- 生产环境应该只推送该 uid 已绑定的机器人。模拟器为了简化会推送全部，前端会自动忽略未绑定的
+
+### 3. 上报遥测：`POST {telemetryIngest 的 URL 化地址}`
+
+- 请求头：`X-INGEST-TOKEN: {telemetry.ingestToken}`
+- 请求体：`{ robotCode, vehicleBattery, packBattery, speed, x?, y?, ts?, raw? }`
+- 同一台机器人 3s 内的重复上报会被丢弃（`minReportIntervalMs`）。**至少每 15s 上报一次**，否则会被判为离线，`sendCommand` 也会拒绝下发
