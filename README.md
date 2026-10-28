@@ -110,6 +110,7 @@
 │   ├── robot-store.js      # 列表 + 详情缓存（stale-while-revalidate）
 │   ├── profile-store.js    # 用户资料 reactive 状态
 │   └── robotBind.js        # 扫码 / 绑定 payload 解析
+├── uni_modules/            # uni-id-pages（注册 / 找回密码 / uni-id-co）、uni-captcha、uni-config-center 及其依赖
 ├── uniCloud-aliyun/
 │   ├── cloudfunctions/
 │   │   ├── userService/    # 唯一鉴权云对象（前端所有业务调用的入口）
@@ -382,6 +383,7 @@ An end-to-end robot fleet management mini program covering the full **realtime t
 │   ├── robot-store.js      # List + detail cache (stale-while-revalidate)
 │   ├── profile-store.js    # User profile reactive store
 │   └── robotBind.js        # QR scan / binding payload parser
+├── uni_modules/            # uni-id-pages (register / reset password / uni-id-co), uni-captcha, uni-config-center and their deps
 ├── uniCloud-aliyun/
 │   ├── cloudfunctions/
 │   │   ├── userService/    # Single auth-enforced cloud object (all frontend calls)
