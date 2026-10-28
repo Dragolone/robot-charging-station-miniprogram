@@ -489,10 +489,16 @@ module.exports = {
 			throw fail('无权限访问该机器人', 403)
 		}
 
-		// 2) 取 robot + telemetry_latest（并行）
-		const [robotRes, telemetryRes] = await Promise.all([
+		// 2) 取 robot + telemetry_latest + 未解决的故障（并行）
+		const [robotRes, telemetryRes, faultsRes] = await Promise.all([
 			db.collection('robots').where({ robotCode: code }).limit(1).get(),
-			db.collection('telemetry_latest').where({ robotCode: code }).orderBy('ts', 'desc').limit(1).get()
+			db.collection('telemetry_latest').where({ robotCode: code }).orderBy('ts', 'desc').limit(1).get(),
+			db
+				.collection('faults')
+				.where({ robotCode: code, status: dbCmd.neq('resolved') })
+				.orderBy('ts', 'desc')
+				.limit(20)
+				.get()
 		])
 		const robot = robotRes.data && robotRes.data.length ? robotRes.data[0] : null
 		if (!robot) throw fail('robotCode 不存在', 404)
@@ -508,7 +514,7 @@ module.exports = {
 				location: normalizedTelemetry.location || robot.location || null
 			},
 			telemetry_latest: normalizedTelemetry,
-			faults: []
+			faults: faultsRes.data || []
 		}
 	},
 

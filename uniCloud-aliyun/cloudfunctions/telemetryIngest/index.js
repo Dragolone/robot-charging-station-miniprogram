@@ -82,6 +82,14 @@ function getDuplicateWindowMs() {
   return asPositiveNumberOrUndefined(config?.telemetry?.duplicateWindowMs) || DEFAULT_DUPLICATE_WINDOW_MS
 }
 
+// 可选字段（如 x/y）：两边都缺省视为相同，避免 NaN !== NaN 让去重失效
+function sameOptionalNumber(a, b) {
+  const aMissing = a === undefined || a === null
+  const bMissing = b === undefined || b === null
+  if (aMissing || bMissing) return aMissing && bMissing
+  return Number(a) === Number(b)
+}
+
 function getDocTimestamp(doc, fields) {
   if (!doc || !fields || !fields.length) return 0
   for (const field of fields) {
@@ -138,6 +146,8 @@ function isDuplicateTelemetry(latestDoc, incomingDoc) {
     Number(latestDoc.speed) === Number(incomingDoc.speed) &&
     Number(latestDoc.vehicleBattery) === Number(incomingDoc.vehicleBattery) &&
     Number(latestDoc.packBattery) === Number(incomingDoc.packBattery) &&
+    sameOptionalNumber(latestDoc.x, incomingDoc.x) &&
+    sameOptionalNumber(latestDoc.y, incomingDoc.y) &&
     String(latestDoc.rawJson || '') === String(incomingDoc.rawJson || '')
   )
 }
@@ -178,6 +188,8 @@ exports.main = async (event, context) => {
     const speed = asNumberOrUndefined(body.speed, 'speed')
     const vehicleBattery = asNumberOrUndefined(body.vehicleBattery, 'vehicleBattery')
     const packBattery = asNumberOrUndefined(body.packBattery, 'packBattery')
+    const x = asNumberOrUndefined(body.x, 'x')
+    const y = asNumberOrUndefined(body.y, 'y')
     const ts = asTsOrUndefined(body.ts, 'ts') ?? Date.now()
     const receivedAt = asTsOrUndefined(body.receivedAt, 'receivedAt') ?? Date.now()
     const rawJson = toRawJson(body.raw)
@@ -194,6 +206,9 @@ exports.main = async (event, context) => {
       rawJson,
       createdAt: now
     }
+    // 坐标为可选字段：未上报时不写入，避免覆盖为 undefined
+    if (x !== undefined) baseDoc.x = x
+    if (y !== undefined) baseDoc.y = y
 
     const latestDoc = await getLatestByRobotCode(robotCode)
     if (isRateLimited(latestDoc, baseDoc)) {
