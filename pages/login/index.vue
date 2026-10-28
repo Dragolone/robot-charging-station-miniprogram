@@ -99,6 +99,7 @@ import { reactive, ref } from 'vue'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { backToRedirect, isLoggedIn, REDIRECT_KEY, setToken } from '@/utils/auth.js'
 import { fetchProfile, clearProfileState } from '@/utils/profile-store.js'
+import { connectWS } from '@/utils/ws-client.js'
 import AnimatedCharacters from '@/components/login-animation/AnimatedCharacters.vue'
 
 const uniIdCo = uniCloud.importObject('uni-id-co', {
@@ -274,6 +275,9 @@ async function submit() {
 			uni.showToast({ title: '登录失败：缺少 token', icon: 'none' })
 			return
 		}
+
+		// App.onShow 时尚未登录不会建连，登录成功后立即建立实时推送
+		connectWS()
 
 		clearProfileState()
 		try {
